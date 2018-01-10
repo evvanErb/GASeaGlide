@@ -216,12 +216,12 @@ void setup() {                       // begin setup method
 }                                    // end setup method
 
 // MAIN LOOP
-void loop(){ 
-  gyroScope();                  
+void loop(){             
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(riseDriveTime); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
   pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast
+  gyroScope();      
 } 
 // END MAIN LOOP
 
