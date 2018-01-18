@@ -9,7 +9,7 @@ This program will run the stoc SeaGlide glider with no advanced add-ons.
 learn more at http://SeaGlide.net there you will find all of the source files, a bill of materials, instructions, and lessons. 
  
 */
-
+//SEAGLIDE VARS
 #include <IRremote.h>                // include the IRremote library: http://github.com/shirriff/Arduino-IRremote
 #include <Servo.h>                   // include the stock "Servo" library for use in this sketch
 Servo myservo;                       // create a new Servo object called myservo
@@ -79,14 +79,23 @@ decode_results results;
     #include "Wire.h"
 #endif
 
+//Define output form
+//#define OUTPUT_READABLE_QUATERNION
+//#define OUTPUT_READABLE_EULER
+#define OUTPUT_READABLE_YAWPITCHROLL
+//#define OUTPUT_READABLE_REALACCEL
+//#define OUTPUT_READABLE_WORLDACCEL
+
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
 // AD0 high = 0x69
 MPU6050 mpu;
-
-#define INTERRUPT_PIN 13  // use pin 2 on Arduino Uno & most boards
-#define LED_PIN 10 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
+float x = 0;
+float y = 0;
+float z = 0;
+#define INTERRUPT_PIN 8  // use pin 2 on Arduino Uno & most boards
+#define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
 
 // MPU control/status vars
@@ -120,7 +129,9 @@ void dmpDataReady() {
 
 //SETUP
 void setup() {                       // begin setup method
-  Serial.begin(9600);                // fire up the serial port. This allows us to print values to the serial console
+  //SEAGLIDE SETUP
+  Serial.begin(115200);               // fire up the serial port. This allows us to print values to the serial console
+ 
   IRsetup();                         // Start the Infa-Red reciever
   pinMode(POT_PIN, INPUT);           // initialize the potentiometer, this pot will determine the coast time turn it right to coast longer
   pinMode(SERVO_PIN, OUTPUT);        // initialize the continuous rotation servo, this motor drives the buoyancy engine
@@ -137,7 +148,7 @@ void setup() {                       // begin setup method
   readPot(POT_PIN);
   delay(50);                        // wait for 0.2 sec
 
-
+ 
   //GYROSCOPE SETUP
   // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -150,7 +161,7 @@ void setup() {                       // begin setup method
     // initialize serial communication
     // (115200 chosen because it is required for Teapot Demo output, but it's
     // really up to you depending on your project)
-    Serial.begin(115200);
+   
     while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
     // NOTE: 8MHz or slower host processors, like the Teensy @ 3.3V or Arduino
@@ -168,12 +179,12 @@ void setup() {                       // begin setup method
     Serial.println(F("Testing device connections..."));
     Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
-    // wait for ready
-    Serial.println(F("\nSend any character to begin DMP programming and demo: "));
+    // wait for ready ... dont want to require console input at this time
+    /*Serial.println(F("\nSend any character to begin DMP programming and demo: "));
     while (Serial.available() && Serial.read()); // empty buffer
     while (!Serial.available());                 // wait for data
     while (Serial.available() && Serial.read()); // empty buffer again
-
+  */
     // load and configure the DMP
     Serial.println(F("Initializing DMP..."));
     devStatus = mpu.dmpInitialize();
@@ -216,12 +227,12 @@ void setup() {                       // begin setup method
 }                                    // end setup method
 
 // MAIN LOOP
-void loop(){             
+void loop(){   
+  gyroScope();           
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(riseDriveTime); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
-  pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast
-  gyroScope();      
+  pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast     
 } 
 // END MAIN LOOP
 
@@ -420,7 +431,7 @@ void flash(int flashes, int time){
   }
 }
 
-
+//Gyroscope main loop
 void gyroScope(){
   
     // if programming failed, don't try to do anything
@@ -496,11 +507,14 @@ void gyroScope(){
             mpu.dmpGetGravity(&gravity, &q);
             mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
             Serial.print("ypr\t");
-            Serial.print(ypr[0] * 180/M_PI);
+            x = ypr[0] * 180/M_PI;
+            y = ypr[1] * 180/M_PI;
+            z = ypr[2] * 180/M_PI;
+            Serial.print(x);
             Serial.print("\t");
-            Serial.print(ypr[1] * 180/M_PI);
+            Serial.print(y);
             Serial.print("\t");
-            Serial.println(ypr[2] * 180/M_PI);
+            Serial.println(z);
         #endif
 
         #ifdef OUTPUT_READABLE_REALACCEL
