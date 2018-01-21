@@ -33,8 +33,6 @@ static byte pausePin = 9;
 //static byte RISE_STOP_SENSOR = A0;   // the pin that the reflectance sensor is attached to. This sensor detects the edge of the plunger mass
 static byte POT_PIN = A3;            // the pin that the wiper of the little orange trim pot is attached to
 static byte RECV_PIN = 2;            // IR reciever signal pin
-static byte IR_GND = 3;              // IR middle pin, ground
-static byte IR_PWR = 4;              // IR power pin
 static byte encoderPin = 12;
 
 static byte RED_LED = 9;             // these are the three pins that the RED
@@ -64,6 +62,10 @@ decode_results results;
 #define VOLUP 0xFD40BF
 #define VLOLDOWN 0xFD00FF
 */
+
+//RUDDER VARS
+Servo myRudder;  // create servo object to control a servo
+
 // GYROSCOPE VARS
 
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
@@ -129,6 +131,8 @@ void dmpDataReady() {
 
 //SETUP
 void setup() {                       // begin setup method
+  //RUDER SETUP
+  myRudder.attach(4);  // attaches the servo on pin 9 to the servo object
   //SEAGLIDE SETUP
   Serial.begin(115200);               // fire up the serial port. This allows us to print values to the serial console
  
@@ -228,7 +232,8 @@ void setup() {                       // begin setup method
 
 // MAIN LOOP
 void loop(){   
-  gyroScope();           
+  gyroScope();          
+  rudder(180); //rudder control
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(riseDriveTime); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
@@ -340,10 +345,6 @@ void checkReed(){
 
 void IRsetup(){
   irrecv.enableIRIn();
-  pinMode(IR_GND, OUTPUT);
-  pinMode(IR_PWR, OUTPUT);
-  digitalWrite(IR_GND, 0);
-  digitalWrite(IR_PWR, 1);
 }
 
 void flashPurp(int t){
@@ -567,7 +568,10 @@ void gyroScope(){
     }
 }
 
-
+void rudder(int val){
+  myRudder.write(val);                  // sets the servo position according to the scaled value
+  delay(15);                           // waits for the servo to get there
+}
 /*
         if (results.value == ONE){
             Serial.println("1");
