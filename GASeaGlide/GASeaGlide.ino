@@ -232,8 +232,13 @@ void setup() {                       // begin setup method
 
 // MAIN LOOP
 void loop(){   
-  gyroScope();          
-  rudder(180); //rudder control
+  //allow time to put in water
+  delay(1000);
+  //allow gyro to stabilize (millis is time since arduino began running)
+  while(millis() < 2000){
+    gyroScope();
+  }          
+  rudder(90); //rudder control
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(riseDriveTime); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
@@ -250,6 +255,9 @@ void dive(int time){
   myservo.write(servoDiveCommand);              // drive servo clockwise, take in water & pull weight forward (pull counterweight & plunger towards servo, at the bow of the glider)
   if (time == 0){
     while (digitalRead(DIVE_STOP) == HIGH){       // keep checking the DIVE_STOP pin to see if the button is pressed
+      //gyro check
+      gyroScope();
+      //adjust rudder
       if (checkIR(0)){
         myservo.attach(SERVO_PIN);                    // attaches the servo on SERVO_PIN to the servo object
         myservo.write(servoDiveCommand);              // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
@@ -262,6 +270,9 @@ void dive(int time){
     unsigned long currentMillis = millis();
     long previousMillis = currentMillis;
     while (currentMillis - previousMillis < time && digitalRead(DIVE_STOP) ) { 
+      //gyro check
+      gyroScope();
+      //adjust rudder
       currentMillis = millis();   
     }   
   }
@@ -280,6 +291,9 @@ void rise(int time){      // , byte cnts){
   long previousMillis = currentMillis;
   while (currentMillis - previousMillis < time) { 
     currentMillis = millis();  
+    //gyro check
+    gyroScope();
+    //adjust rudder
     if (checkIR(0)){
       myservo.attach(SERVO_PIN);                // attaches the servo on SERVO_PIN to the servo object
       myservo.write(servoRiseCommand);          // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
