@@ -312,6 +312,9 @@ void pause(int pauseTime, boolean divingCoast){
   unsigned long previousMillis = currentMillis;
   unsigned long previousMillis2 = previousMillis;
   while (currentMillis - previousMillis < pauseTime) { 
+    //gyro check
+    gyroScope();
+    //adjust rudder
     currentMillis = millis();  
     if (currentMillis - previousMillis2 > sampleInterval){
         //Put sensor print statements here
