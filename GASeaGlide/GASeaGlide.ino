@@ -19,6 +19,9 @@ static int minCoast =  1000;         // if the pot is turned all the way to the 
 static int maxCoast = 20000;         // if the pot is turned all the way to the clockwise the glider will coast for 10 secconds
 static byte servoDiveCommand = 0;    // this is the angle value that the dive method sends to the servo
 static byte servoRiseCommand = 180;  // this is the angle value that the rise method sends to the servo
+
+static int totalEncoderCounts = 149; //encoder counts
+
 //static byte countsPrev = 6;          // 5 or 11
 static int sampleInterval = 2000;       // sample interval if you have sensors attached. (not in use by default)
 
@@ -93,9 +96,9 @@ Servo myRudder;  // create servo object to control a servo
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
 // AD0 high = 0x69
 MPU6050 mpu;
-float x = 0;
-float y = 0;
-float z = 0;
+double x = 0;
+double y = 0;
+double z = 0;
 #define INTERRUPT_PIN 8  // use pin 2 on Arduino Uno & most boards
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
@@ -241,7 +244,7 @@ void loop(){
   rudder(90); //rudder control
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
-  rise(riseDriveTime); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
+  rise(totalEncoderCounts); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
   pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast     
 } 
 // END MAIN LOOP
@@ -281,30 +284,35 @@ void dive(int time){
   ledRGB_Write(255, 80, 0);                     // set LED to ORANGE to indicate that the glider is coasting in a dive
 }                                               // end of method
 
-// Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
-void rise(int time){      // , byte cnts){                  
+void rise(int cnts){      // , byte cnts){                  // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
   ledRGB_Write(0, 200, 0);                      // set LED to GREEN to indicate that the glider is rising
   Serial.println("rising");                     // print status change to the serial port
   myservo.attach(SERVO_PIN);                    // attaches the servo on SERVO_PIN to the servo object
   myservo.write(servoRiseCommand);              // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
-  unsigned long currentMillis = millis();
-  long previousMillis = currentMillis;
-  while (currentMillis - previousMillis < time) { 
-    currentMillis = millis();  
-    //gyro check
+  boolean previousState = checkEncoder();
+  int count = 1;
+  while (count <= (cnts)){ // keep checking to see if the RISE_STOP_SENSOR reading is < the riseStopThreshold
+    //check gyro
     gyroScope();
-    //adjust rudder
-    if (checkIR(0)){
+    //change rudder
+    if (previousState != checkEncoder()){
+      count++;
+      previousState = !previousState;
+      digitalWrite(13, previousState);
+      delay(1);
+    }
+    if (checkIR(false)){
       myservo.attach(SERVO_PIN);                // attaches the servo on SERVO_PIN to the servo object
       myservo.write(servoRiseCommand);          // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
       ledRGB_Write(0, 200, 0);                  // set LED to GREEN to indicate that the glider is rising
-    }    
+    }
+    
     // wait...                                  // just keep checking, when the sensor sees the edge, continue to the next line
   }
   myservo.detach();                             // stop the servo, detaches the servo on SERVO_PIN from the servo object
   Serial.println("coasting (rise)");            // print status change to the serial port
   ledRGB_Write(0, 0, 255);                      // set LED to BLUE to indicate that the glider is coasting in a rise
-}                                               // end of method
+}                                                // end of method
 
 //pause method
 void pause(int pauseTime, boolean divingCoast){
@@ -588,6 +596,16 @@ void gyroScope(){
 void rudder(int val){
   myRudder.write(val);                  // sets the servo position according to the scaled value
   delay(15);                           // waits for the servo to get there
+}
+
+//checks boyancy encoder to see if high or low
+boolean checkEncoder(){
+  if (!digitalRead(encoderPin)){
+    return 1;
+  }
+  else{
+    return 0;
+  }
 }
 /*
         if (results.value == ONE){
