@@ -148,6 +148,7 @@ void setup() {                       // begin setup method
   pinMode(GREEN_LED, OUTPUT);        //                GREEN
   pinMode(BLUE_LED, OUTPUT);         //            and BLUE pins on the LED
   pinMode(LED_BASE, OUTPUT);         // initialize the common pin of the LED 
+  pinMode(encoderPin, INPUT_PULLUP);
 
   // initialize RGB LED
   ledRGB_Write(0, 0, 0);             // set the R, G, & B LEDs to OFF
