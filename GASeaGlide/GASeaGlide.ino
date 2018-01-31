@@ -96,9 +96,9 @@ Servo myRudder;  // create servo object to control a servo
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
 // AD0 high = 0x69
 MPU6050 mpu;
-double x = 0;
-double y = 0;
-double z = 0;
+double yaw = 0;
+double pitch = 0;
+double roll = 0;
 #define INTERRUPT_PIN 8  // use pin 2 on Arduino Uno & most boards
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
@@ -534,14 +534,14 @@ void gyroScope(){
             mpu.dmpGetGravity(&gravity, &q);
             mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
             Serial.print("ypr\t");
-            x = ypr[0] * 180/M_PI;
-            y = ypr[1] * 180/M_PI;
-            z = ypr[2] * 180/M_PI;
-            Serial.print(x);
+            yaw = ypr[0] * 180/M_PI;
+            pitch = ypr[1] * 180/M_PI;
+            roll = ypr[2] * 180/M_PI;
+            Serial.print(yaw);
             Serial.print("\t");
-            Serial.print(y);
+            Serial.print(pitch);
             Serial.print("\t");
-            Serial.println(z);
+            Serial.println(roll);
         #endif
 
         #ifdef OUTPUT_READABLE_REALACCEL
