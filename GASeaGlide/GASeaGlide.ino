@@ -262,6 +262,7 @@ void dive(int time){
       //gyro check
       gyroScope();
       //adjust rudder
+      rudder(90);
       if (checkIR(0)){
         myservo.attach(SERVO_PIN);                    // attaches the servo on SERVO_PIN to the servo object
         myservo.write(servoDiveCommand);              // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
@@ -277,6 +278,7 @@ void dive(int time){
       //gyro check
       gyroScope();
       //adjust rudder
+      rudder(90);
       currentMillis = millis();   
     }   
   }
@@ -293,9 +295,10 @@ void rise(int cnts){      // , byte cnts){                  // Rise: Run the "ri
   boolean previousState = checkEncoder();
   int count = 1;
   while (count <= (cnts)){ // keep checking to see if the RISE_STOP_SENSOR reading is < the riseStopThreshold
-    //check gyro
+    //gyro check
     gyroScope();
-    //change rudder
+    //adjust rudder
+    rudder(90);
     if (previousState != checkEncoder()){
       count++;
       previousState = !previousState;
@@ -324,6 +327,7 @@ void pause(int pauseTime, boolean divingCoast){
     //gyro check
     gyroScope();
     //adjust rudder
+    rudder(90);
     currentMillis = millis();  
     if (currentMillis - previousMillis2 > sampleInterval){
         //Put sensor print statements here
