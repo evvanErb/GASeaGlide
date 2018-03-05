@@ -134,8 +134,6 @@ void dmpDataReady() {
 
 //SETUP
 void setup() {                       // begin setup method
-  //RUDER SETUP
-  myRudder.attach(4);  // attaches the servo on pin 9 to the servo object
   //SEAGLIDE SETUP
   Serial.begin(115200);               // fire up the serial port. This allows us to print values to the serial console
  
@@ -235,17 +233,19 @@ void setup() {                       // begin setup method
 }                                    // end setup method
 
 // MAIN LOOP
-void loop(){   
-  //allow time to put in water
-  delay(1000);
+void loop(){
   //allow gyro to stabilize (millis is time since arduino began running)
   while(millis() < 2000){
     gyroScope();
   }          
   rudder(90); //rudder control
+  checkTimeForTurn();
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
+  checkTimeForTurn();
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
+  checkTimeForTurn();
   rise(totalEncoderCounts); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
+  checkTimeForTurn();
   pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast     
 } 
 // END MAIN LOOP
@@ -599,9 +599,24 @@ void gyroScope(){
 }
 
 void rudder(int val){
+  myRudder.attach(4);
   myRudder.write(val);                  // sets the servo position according to the scaled value
-  delay(15);                           // waits for the servo to get there
+  delay(15);                            // waits for the servo to get there
+  myRudder.detach();
 }
+
+//tier two turns
+void checkTimeForTurn(){
+  while(millis() >= 7000 && millis <= 8000){
+    rudder(180);
+  }
+  rudder(90);
+  while(millis() >= 11000 && millis <= 12000){
+    rudder(0);
+  }
+  rudder(90);
+}
+
 
 //checks boyancy encoder to see if high or low
 boolean checkEncoder(){
