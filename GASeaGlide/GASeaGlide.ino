@@ -239,13 +239,9 @@ void loop(){
     gyroScope();
   }          
   rudder(90); //rudder control
-  checkTimeForTurn();
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
-  checkTimeForTurn();
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
-  checkTimeForTurn();
   rise(totalEncoderCounts); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
-  checkTimeForTurn();
   pause(readPot(POT_PIN)*1.1, 0); // Read the pot and delay bassed on it's position, coast     
 } 
 // END MAIN LOOP
@@ -262,7 +258,7 @@ void dive(int time){
       //gyro check
       gyroScope();
       //adjust rudder
-      rudder(90);
+      checkTimeForTurn();
       if (checkIR(0)){
         myservo.attach(SERVO_PIN);                    // attaches the servo on SERVO_PIN to the servo object
         myservo.write(servoDiveCommand);              // drive servo counter-clockwise, pull weight aft (push counterweight & plunger away from servo)
@@ -278,7 +274,7 @@ void dive(int time){
       //gyro check
       gyroScope();
       //adjust rudder
-      rudder(90);
+      checkTimeForTurn();
       currentMillis = millis();   
     }   
   }
@@ -298,7 +294,7 @@ void rise(int cnts){      // , byte cnts){                  // Rise: Run the "ri
     //gyro check
     gyroScope();
     //adjust rudder
-    rudder(90);
+    checkTimeForTurn();
     if (previousState != checkEncoder()){
       count++;
       previousState = !previousState;
@@ -327,7 +323,7 @@ void pause(int pauseTime, boolean divingCoast){
     //gyro check
     gyroScope();
     //adjust rudder
-    rudder(90);
+    checkTimeForTurn();
     currentMillis = millis();  
     if (currentMillis - previousMillis2 > sampleInterval){
         //Put sensor print statements here
