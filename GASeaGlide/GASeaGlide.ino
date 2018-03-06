@@ -131,6 +131,11 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
+//Turn bools
+boolean firstTurn = true;
+boolean secondTurn = true;
+boolean firstReturn = true;
+boolean secondReturn = true;
 
 //SETUP
 void setup() {                       // begin setup method
@@ -235,10 +240,10 @@ void setup() {                       // begin setup method
 // MAIN LOOP
 void loop(){
   //allow gyro to stabilize (millis is time since arduino began running)
+  rudder(104); //rudder control
   while(millis() < 2000){
     gyroScope();
-  }          
-  rudder(90); //rudder control
+  }         
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(totalEncoderCounts); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
@@ -603,15 +608,25 @@ void rudder(int val){
 
 //tier two turns
 void checkTimeForTurn(){
-  /*
-  while(millis() >= 7000 && millis <= 10000){
-    rudder(180);
+  
+  if(millis() >= 7000 && millis() <= 8000 && firstTurn){
+    rudder(120);
+    firstTurn = false;
   }
-  while(millis() >= 14000 && millis <= 17000){
-    rudder(0);
+  if(millis() >= 8000 && !firstTurn && firstReturn){
+    rudder(104);
+    firstTurn = true;
+    firstReturn = false;
   }
-   */
-  rudder(104);
+  if(millis() >= 14000 && millis() <= 15000 && secondTurn){
+    rudder(80);
+    secondTurn = false;
+  }
+  if(millis() >= 15000 && !secondTurn && secondReturn){
+    rudder(104);
+    secondTurn = true;
+    secondReturn = false;
+  }
 }
 
 
