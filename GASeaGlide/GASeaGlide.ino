@@ -603,14 +603,15 @@ void rudder(int val){
 
 //tier two turns
 void checkTimeForTurn(){
-  while(millis() >= 7000 && millis <= 8000){
+  /*
+  while(millis() >= 7000 && millis <= 10000){
     rudder(180);
   }
-  rudder(90);
-  while(millis() >= 11000 && millis <= 12000){
+  while(millis() >= 14000 && millis <= 17000){
     rudder(0);
   }
-  rudder(90);
+   */
+  rudder(104);
 }
 
 
