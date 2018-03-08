@@ -139,6 +139,7 @@ boolean secondReturn = true;
 
 //SETUP
 void setup() {                       // begin setup method
+  myRudder.attach(4);
   //SEAGLIDE SETUP
   Serial.begin(115200);               // fire up the serial port. This allows us to print values to the serial console
  
@@ -241,9 +242,11 @@ void setup() {                       // begin setup method
 void loop(){
   //allow gyro to stabilize (millis is time since arduino began running)
   rudder(104); //rudder control
+  /*
   while(millis() < 2000){
     gyroScope();
   }         
+  */
   dive(0);                     // DIVE-DIVE-DIVE: Run the "dive" method. This will start turning the servo to take in water & pitch the glider down
   pause(readPot(POT_PIN), 1);     // read the pot and delay bassed on it's position, coast
   rise(totalEncoderCounts); //150   // Rise: Run the "rise" method. This will start turning the servo to push out water & pitch the glider up
@@ -600,29 +603,25 @@ void gyroScope(){
 }
 
 void rudder(int val){
-  myRudder.attach(4);
   myRudder.write(val);                  // sets the servo position according to the scaled value
-  delay(15);                            // waits for the servo to get there
-  myRudder.detach();
 }
 
 //tier two turns
 void checkTimeForTurn(){
-  
-  if(millis() >= 7000 && millis() <= 8000 && firstTurn){
+  if(millis() >= 7000 && millis() <= 10000 && firstTurn){
     rudder(120);
     firstTurn = false;
   }
-  if(millis() >= 8000 && !firstTurn && firstReturn){
+  if(millis() >= 10000 && !firstTurn && firstReturn){
     rudder(104);
     firstTurn = true;
     firstReturn = false;
   }
-  if(millis() >= 14000 && millis() <= 15000 && secondTurn){
+  if(millis() >= 14000 && millis() <= 17000 && secondTurn){
     rudder(80);
     secondTurn = false;
   }
-  if(millis() >= 15000 && !secondTurn && secondReturn){
+  if(millis() >= 17000 && !secondTurn && secondReturn){
     rudder(104);
     secondTurn = true;
     secondReturn = false;
